@@ -116,13 +116,15 @@ var geoLocked = false;
 
 var loader = new THREE.GLTFLoader();
 
+var chair =  new THREE.Group();
+
 loader.load(
 	// resource URL
 	'./vitra_eames_plastic_chair/scene.gltf',
 	// called when the resource is loaded
 	function ( importedObject ) {
-
-        var chair ;
+        
+        var group = []
         importedObject.scene.traverse( function ( object ) {
 
             if ( object.material ) {
@@ -154,26 +156,33 @@ loader.load(
                     material.morphNormals = object.material.morphNormals;
                     object.material = material;
                 }
-                chair = object;
+                // chair = object;
+                group.push( object );
+
 
             }
 
         } );
 
-        debugger
+        group.forEach((obj) => {
+            chair.add(obj)
+        })
+        // chair = importedObject.scene
 
-        importedObject.animations; // Array<THREE.AnimationClip>
-		importedObject.scene; // THREE.Scene
-		importedObject.scenes; // Array<THREE.Scene>
-		importedObject.cameras; // Array<THREE.Camera>
-        importedObject.asset; // Object
+        // debugger
+
+        // importedObject.animations; // Array<THREE.AnimationClip>
+		// importedObject.scene; // THREE.Scene
+		// importedObject.scenes; // Array<THREE.Scene>
+		// importedObject.cameras; // Array<THREE.Camera>
+        // importedObject.asset; // Object
         
-        chair.position.x = -75;
-        chair.position.y = -75;
-        chair.position.z = -75;
-        chair.rotation.x = 50;
-        chair.rotation.y = 50;
-        chair.rotation.z = 50;
+        chair.position.x = 0;
+        chair.position.y = 75;
+        chair.position.z = -100;
+        chair.rotation.x = 100;
+        chair.rotation.y = 0;
+        chair.rotation.z = -45;
         chair.scale.x = .5;
         chair.scale.y = .5;
         chair.scale.z = .5;
@@ -190,7 +199,7 @@ loader.load(
 	// called when loading has errors
 	function ( error ) {
 
-		console.log( 'An error happened' );
+		console.log( 'An error happened', error );
 
 	}
 );
@@ -199,23 +208,23 @@ loader.load(
 
 
 // set up 50 cubes, each with its own entity
-var geometry = new THREE.BoxGeometry(1, 1, 1);
-for (var i = 0; i < 50; i++) {
-    var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
-    object.position.x = Math.random() * 50 - 25;
-    object.position.y = Math.random() * 10 + 1;
-    object.position.z = Math.random() * 50 - 25;
-    object.rotation.x = Math.random() * 2 * Math.PI;
-    object.rotation.y = Math.random() * 2 * Math.PI;
-    object.rotation.z = Math.random() * 2 * Math.PI;
-    object.scale.x = Math.random() * 3 + 1;
-    object.scale.y = Math.random() * 3 + 1;
-    object.scale.z = Math.random() * 3 + 1;
-    object.castShadow = true;
-    object.receiveShadow = true;
-    boxScene.add(object);
-    objects.push(object);
-}
+// var geometry = new THREE.BoxGeometry(1, 1, 1);
+// for (var i = 0; i < 50; i++) {
+//     var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
+//     object.position.x = Math.random() * 50 - 25;
+//     object.position.y = Math.random() * 10 + 1;
+//     object.position.z = Math.random() * 50 - 25;
+//     object.rotation.x = Math.random() * 2 * Math.PI;
+//     object.rotation.y = Math.random() * 2 * Math.PI;
+//     object.rotation.z = Math.random() * 2 * Math.PI;
+//     object.scale.x = Math.random() * 3 + 1;
+//     object.scale.y = Math.random() * 3 + 1;
+//     object.scale.z = Math.random() * 3 + 1;
+//     object.castShadow = true;
+//     object.receiveShadow = true;
+//     boxScene.add(object);
+//     objects.push(object);
+// }
 document.addEventListener('keydown', onDocumentKeyStart, false);
 document.addEventListener('keyup', onDocumentKeyEnd, false);
 function onDocumentKeyStart(event) {
@@ -451,7 +460,7 @@ function handleSelection() {
     
     if (intersects.length > 0) {
         console.log("touch intersect!");
-        var object = intersects[0].object;
+        var object = chair;
         var date = app.context.getTime();
         var defaultFrame = app.context.getDefaultReferenceFrame();
         console.log("------");
@@ -494,6 +503,7 @@ function handlePointerMove(x, y) {
     var intersects = raycaster.intersectObjects(objects, true);
     if (intersects.length > 0) {
         if (INTERSECTED != intersects[0].object) {
+            
             if (INTERSECTED)
                 INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
             INTERSECTED = intersects[0].object;
