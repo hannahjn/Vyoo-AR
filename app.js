@@ -120,42 +120,68 @@ loader.load(
 	// resource URL
 	'./vitra_eames_plastic_chair/scene.gltf',
 	// called when the resource is loaded
-	function ( object ) {
+	function ( importedObject ) {
 
-        object.animations; // Array<THREE.AnimationClip>
-		object.scene; // THREE.Scene
-		object.scenes; // Array<THREE.Scene>
-		object.cameras; // Array<THREE.Camera>
-        object.asset; // Object
+        var chair ;
+        importedObject.scene.traverse( function ( object ) {
+
+            if ( object.material ) {
+
+                if ( Array.isArray( object.material ) ) {
+
+                    for ( var i = 0, il = object.material.length; i < il; i ++ ) {
+
+                        var material = new THREE.MeshBasicMaterial();
+                        THREE.Material.prototype.copy.call( material, object.material[ i ] );
+                        material.color.copy( object.material[ i ].color );
+                        material.map = object.material[ i ].map;
+                        material.lights = false;
+                        material.skinning = object.material[ i ].skinning;
+                        material.morphTargets = object.material[ i ].morphTargets;
+                        material.morphNormals = object.material[ i ].morphNormals;
+                        object.material[ i ] = material;
+
+                    }
+
+                } else {
+                    var material = new THREE.MeshBasicMaterial({});
+                    THREE.Material.prototype.copy.call( material, object.material );
+                    material.color.copy( object.material.color );
+                    material.map = object.material.map;
+                    material.lights = false;
+                    material.skinning = object.material.skinning;
+                    material.morphTargets = object.material.morphTargets;
+                    material.morphNormals = object.material.morphNormals;
+                    object.material = material;
+                }
+                chair = object;
+
+            }
+
+        } );
+
+        debugger
+
+        importedObject.animations; // Array<THREE.AnimationClip>
+		importedObject.scene; // THREE.Scene
+		importedObject.scenes; // Array<THREE.Scene>
+		importedObject.cameras; // Array<THREE.Camera>
+        importedObject.asset; // Object
         
-        // var materialObj = new THREE.MeshBasicMaterial({
-        //     vertexColors: THREE.FaceColors,
-        //     overdraw: 0.5
-        // });
-        // debugger
-        // object.traverse(function(child) {
-        //     debugger
-        //     if (child instanceof THREE.Mesh) {
-        //         child.material = materialObj;
-        //     }
-        // });
-
-        // debugger    
-
-        // var object = new THREE.Mesh(gltf.asset, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
-        object.scene.position.x = -75;
-        object.scene.position.y = -75;
-        object.scene.position.z = -75;
-        object.scene.rotation.x = 50;
-        object.scene.rotation.y = 50;
-        object.scene.rotation.z = 50;
-        object.scene.scale.x = .5;
-        object.scene.scale.y = .5;
-        object.scene.scale.z = .5;
-        object.scene.castShadow = true;
-        object.scene.receiveShadow = true;
-        boxScene.add(object.scene);
-        objects.push(object.scene);
+        chair.position.x = -75;
+        chair.position.y = -75;
+        chair.position.z = -75;
+        chair.rotation.x = 50;
+        chair.rotation.y = 50;
+        chair.rotation.z = 50;
+        chair.scale.x = .5;
+        chair.scale.y = .5;
+        chair.scale.z = .5;
+        chair.castShadow = true;
+        chair.receiveShadow = true;
+        
+        boxScene.add(chair);
+        objects.push(chair);
 	},
 	// called while loading is progressing
 	function ( xhr ) {
@@ -173,23 +199,23 @@ loader.load(
 
 
 // set up 50 cubes, each with its own entity
-// var geometry = new THREE.BoxGeometry(1, 1, 1);
-// for (var i = 0; i < 50; i++) {
-//     var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
-//     object.position.x = Math.random() * 50 - 25;
-//     object.position.y = Math.random() * 10 + 1;
-//     object.position.z = Math.random() * 50 - 25;
-//     object.rotation.x = Math.random() * 2 * Math.PI;
-//     object.rotation.y = Math.random() * 2 * Math.PI;
-//     object.rotation.z = Math.random() * 2 * Math.PI;
-//     object.scale.x = Math.random() * 3 + 1;
-//     object.scale.y = Math.random() * 3 + 1;
-//     object.scale.z = Math.random() * 3 + 1;
-//     object.castShadow = true;
-//     object.receiveShadow = true;
-//     boxScene.add(object);
-//     objects.push(object);
-// }
+var geometry = new THREE.BoxGeometry(1, 1, 1);
+for (var i = 0; i < 50; i++) {
+    var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
+    object.position.x = Math.random() * 50 - 25;
+    object.position.y = Math.random() * 10 + 1;
+    object.position.z = Math.random() * 50 - 25;
+    object.rotation.x = Math.random() * 2 * Math.PI;
+    object.rotation.y = Math.random() * 2 * Math.PI;
+    object.rotation.z = Math.random() * 2 * Math.PI;
+    object.scale.x = Math.random() * 3 + 1;
+    object.scale.y = Math.random() * 3 + 1;
+    object.scale.z = Math.random() * 3 + 1;
+    object.castShadow = true;
+    object.receiveShadow = true;
+    boxScene.add(object);
+    objects.push(object);
+}
 document.addEventListener('keydown', onDocumentKeyStart, false);
 document.addEventListener('keyup', onDocumentKeyEnd, false);
 function onDocumentKeyStart(event) {
@@ -239,8 +265,8 @@ app.view.uiEvent.addEventListener(function (evt) {
                 evt.forwardEvent();
                 return; // ignore duplicate events
             }
-            //console.log ("touch move: ");
-            //console.log(event);
+            console.log ("touch move: ");
+            console.log(event);
             event.preventDefault();
             for (ti = 0; ti < event.changedTouches.length; ti++) {
                 //console.log("changedTouches[" + i + "].identifier = " + e.changedTouches[i].identifier);
@@ -421,7 +447,8 @@ function handleSelection() {
     scene.updateMatrixWorld(true);
     raycaster.setFromCamera(mouse, camera);
     console.log("touch!");
-    var intersects = raycaster.intersectObjects(objects);
+    var intersects = raycaster.intersectObjects(objects, true);
+    
     if (intersects.length > 0) {
         console.log("touch intersect!");
         var object = intersects[0].object;
@@ -464,7 +491,7 @@ function handlePointerMove(x, y) {
     mouse.y = y;
     scene.updateMatrixWorld(true);
     raycaster.setFromCamera(mouse, camera);
-    var intersects = raycaster.intersectObjects(objects);
+    var intersects = raycaster.intersectObjects(objects, true);
     if (intersects.length > 0) {
         if (INTERSECTED != intersects[0].object) {
             if (INTERSECTED)
