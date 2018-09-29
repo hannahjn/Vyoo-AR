@@ -108,7 +108,7 @@ var mouse = new THREE.Vector2();
 var offset = new THREE.Vector3();
 var intersection = new THREE.Vector3();
 var tempPos = new THREE.Vector3();
-var INTERSECTED, SELECTED;
+var INTERSECTED, SELECTED = chair;
 var touchID; // which touch caused the selection?
 // need to keep track of if we've located the box scene at all, and if it's locked to the world
 var boxInit = false;
@@ -124,7 +124,8 @@ loader.load(
 	// called when the resource is loaded
 	function ( importedObject ) {
         
-        var group = []
+        var group = [];
+        var materials = [];
         importedObject.scene.traverse( function ( object ) {
 
             if ( object.material ) {
@@ -158,6 +159,7 @@ loader.load(
                 }
                 // chair = object;
                 group.push( object );
+                group.push( materials );
 
 
             }
@@ -178,7 +180,7 @@ loader.load(
         // importedObject.asset; // Object
         
         chair.position.x = 0;
-        chair.position.y = 75;
+        chair.position.y = 0;
         chair.position.z = -100;
         chair.rotation.x = 100;
         chair.rotation.y = 0;
@@ -305,6 +307,7 @@ app.view.uiEvent.addEventListener(function (evt) {
             var x = (tx / window.innerWidth) * 2 - 1;
             var y = -(ty / window.innerHeight) * 2 + 1;
             if (SELECTED) {
+                console.log('SELECTED', SELECTED);
                 mouse.x = x;
                 mouse.y = y;
                 raycaster.setFromCamera(mouse, camera);
@@ -318,20 +321,32 @@ app.view.uiEvent.addEventListener(function (evt) {
                     var ptInWorld = user.worldToLocal(intersection).sub(offset);
                     SELECTED.position.copy(ptInWorld);
                     // SELECTED.entity.position.setValue(SELECTED.position, app.context.user);
-                }
+                } 
             }
             else {
+                console.log('HELLO');
+                   
+                // chair.rotation.z = - 90 * ( Math.PI / 180 );
+
                 handlePointerMove(x, y);
+                if(!SELECTED == chair){
+
+                    handleSelection();
+                } else {
+                // handleSelection();
                 evt.forwardEvent();
+                }
             }
             return;
-        case "touchstart":
+            case "touchstart":
             if (window.PointerEvent) {
+                handleSelection();
                 evt.forwardEvent();
                 return; // ignore duplicate events
             }
             console.log("touch start: ");
             console.log(event);
+            
             event.preventDefault();
             // try the first new touch ... seems unlikely there will be TWO new touches
             // at exactly the same time
@@ -453,10 +468,19 @@ function handleRelease() {
     // boxScene.add(SELECTED);
     return true;
 }
+let quarterturn = 1;
+var ti, tx, ty;
 function handleSelection() {
     scene.updateMatrixWorld(true);
     raycaster.setFromCamera(mouse, camera);
+    
+    chair.rotation.z = 180 * mouse.x
+    console.log(mouse.x)
+
+    chair.rotation.x = 180 * mouse.y
+
     console.log("touch!");
+ 
     var intersects = raycaster.intersectObjects(objects, true);
     
     if (intersects.length > 0) {
@@ -497,6 +521,7 @@ function handlePointerMove(x, y) {
     if (SELECTED) {
         return;
     }
+    // console.log('HANDLE POINTER MOVE');
     mouse.x = x;
     mouse.y = y;
     scene.updateMatrixWorld(true);
