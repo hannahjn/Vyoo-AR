@@ -108,7 +108,7 @@ var mouse = new THREE.Vector2();
 var offset = new THREE.Vector3();
 var intersection = new THREE.Vector3();
 var tempPos = new THREE.Vector3();
-var INTERSECTED, SELECTED;
+var INTERSECTED, SELECTED, mouseHadBeenClicked = false;
 var touchID; // which touch caused the selection?
 // need to keep track of if we've located the box scene at all, and if it's locked to the world
 var boxInit = false;
@@ -306,6 +306,7 @@ app.view.uiEvent.addEventListener(function (evt) {
             }
             var x = (tx / window.innerWidth) * 2 - 1;
             var y = -(ty / window.innerHeight) * 2 + 1;
+            console.log('jimmy',mouseHadBeenClicked)
             if (SELECTED) {
                 console.log('SELECTED', SELECTED);
                 mouse.x = x;
@@ -323,17 +324,21 @@ app.view.uiEvent.addEventListener(function (evt) {
                     // SELECTED.entity.position.setValue(SELECTED.position, app.context.user);
                 } 
             }
-            else {
+            else if(mouseHadBeenClicked)
+            {
                 console.log('HELLO');
                    
                 // chair.rotation.z = - 90 * ( Math.PI / 180 );
 
                 handlePointerMove(x, y);
-                // if(!SELECTED == Mesh){
-
-                    handleSelection();
+               
+                    // chair.rotation.z = 180 * mouse.x
+                    // console.log(mouse.x)
+                
+                    // chair.rotation.x = 180 * mouse.y
+                    // handleSelection();
                 // } else {
-                // handleSelection();
+                handleSelection();
                 evt.forwardEvent();
                 // }
             }
@@ -354,6 +359,7 @@ app.view.uiEvent.addEventListener(function (evt) {
         case 'pointerdown':
         case 'mousedown':
             // ignore additional touches or pointer down events after the first selection
+            mouseHadBeenClicked = true
             if (SELECTED) {
                 // perhaps multitouch devices can do a second pointer down ... need
                 // to keep track of which pointer event, I suppose!
@@ -422,6 +428,7 @@ app.view.uiEvent.addEventListener(function (evt) {
             }
         case 'pointerup':
         case 'mouseup':
+            mouseHadBeenClicked = false
             if (isCrosshair && event.type == "mouseup") {
                 // ignore mouse up events for selection in crosshair mode, they must
                 // use the keyboard
@@ -475,9 +482,10 @@ function handleSelection() {
     raycaster.setFromCamera(mouse, camera);
     
     chair.rotation.z = 180 * mouse.x
-    console.log(mouse.x)
+    // console.log(mouse.x)
 
     chair.rotation.x = 180 * mouse.y
+    // }
 
     console.log("touch!");
  
