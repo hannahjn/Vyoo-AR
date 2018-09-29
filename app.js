@@ -108,7 +108,7 @@ var mouse = new THREE.Vector2();
 var offset = new THREE.Vector3();
 var intersection = new THREE.Vector3();
 var tempPos = new THREE.Vector3();
-var INTERSECTED, SELECTED = chair;
+var INTERSECTED, SELECTED;
 var touchID; // which touch caused the selection?
 // need to keep track of if we've located the box scene at all, and if it's locked to the world
 var boxInit = false;
@@ -329,13 +329,13 @@ app.view.uiEvent.addEventListener(function (evt) {
                 // chair.rotation.z = - 90 * ( Math.PI / 180 );
 
                 handlePointerMove(x, y);
-                if(!SELECTED == chair){
+                // if(!SELECTED == Mesh){
 
                     handleSelection();
-                } else {
+                // } else {
                 // handleSelection();
                 evt.forwardEvent();
-                }
+                // }
             }
             return;
             case "touchstart":
