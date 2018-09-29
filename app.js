@@ -375,10 +375,11 @@ app.view.uiEvent.addEventListener(function (evt) {
                 if (event.type == "touchstart" || event.type == "pointerdown") {
                     if (!isCrosshair) {
                         if (INTERSECTED)
-                            INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
+                        console.log('INTERSECTED: ', INTERSECTED);
+                            INTERSECTED.mesh.material.color.setHex(INTERSECTED.currentHex);
                         INTERSECTED = SELECTED;
-                        INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
-                        INTERSECTED.material.color.setHex(0xffff33);
+                        INTERSECTED.currentHex = INTERSECTED.materials.color.getHex();
+                        INTERSECTED.mesh.material.color.setHex(0xffff33);
                     }
                 }
             }
