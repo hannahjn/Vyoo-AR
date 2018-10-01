@@ -75,6 +75,7 @@ var boxScene = new THREE.Object3D;
 scene.add(camera);
 scene.add(user);
 scene.add(boxScene);
+
 // an entity for the collection of boxes, which are rooted to the world together
 var boxSceneEntity = new Argon.Cesium.Entity({
     name: "box scene",
@@ -114,6 +115,7 @@ var touchID; // which touch caused the selection?
 var boxInit = false;
 var geoLocked = false;
 
+
 var loader = new THREE.GLTFLoader();
 
 var chair =  new THREE.Group();
@@ -123,18 +125,18 @@ loader.load(
 	'./vitra_eames_plastic_chair/scene.gltf',
 	// called when the resource is loaded
 	function ( importedObject ) {
-        
+        // console.log('importentObject', importedObject);
         var group = [];
-        var materials = [];
+        // var materials = [];
         importedObject.scene.traverse( function ( object ) {
-
+            console.log('obj.mat', object, object.material);
             if ( object.material ) {
-
-                if ( Array.isArray( object.material ) ) {
+               
+                if ( object.material  ) {
 
                     for ( var i = 0, il = object.material.length; i < il; i ++ ) {
 
-                        var material = new THREE.MeshBasicMaterial();
+                        var material = new THREE.MeshPhongMaterial();
                         THREE.Material.prototype.copy.call( material, object.material[ i ] );
                         material.color.copy( object.material[ i ].color );
                         material.map = object.material[ i ].map;
@@ -147,7 +149,8 @@ loader.load(
                     }
 
                 } else {
-                    var material = new THREE.MeshBasicMaterial({});
+
+                    var material = new THREE.MeshStandardMaterial({});
                     THREE.Material.prototype.copy.call( material, object.material );
                     material.color.copy( object.material.color );
                     material.map = object.material.map;
@@ -159,7 +162,7 @@ loader.load(
                 }
                 // chair = object;
                 group.push( object );
-                group.push( materials );
+                // group.push( materials );
 
 
             }
