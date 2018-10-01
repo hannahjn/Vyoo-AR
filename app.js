@@ -280,10 +280,13 @@ app.view.uiEvent.addEventListener(function (evt) {
             console.log(event);
             event.preventDefault();
             for (ti = 0; ti < event.changedTouches.length; ti++) {
-                //console.log("changedTouches[" + i + "].identifier = " + e.changedTouches[i].identifier);
-                if (event.changedTouches[ti].identifier == touchID)
-                    break;
-            }
+                // console.log("changedTouches[" + i + "].identifier = " + e.changedTouches[i].identifier);
+                if (event.changedTouches[ti].identifier == touchID && !SELECTED) {
+                    handlePointerMove(x, y);
+                    handleSelection();
+                }
+                break;
+            } 
             // if we didn't find a move for the first touch, skip
             if (ti == event.changedTouches.length) {
                 evt.forwardEvent();
@@ -307,7 +310,7 @@ app.view.uiEvent.addEventListener(function (evt) {
             }
             var x = (tx / window.innerWidth) * 2 - 1;
             var y = -(ty / window.innerHeight) * 2 + 1;
-            console.log('jimmy',mouseHadBeenClicked)
+            // console.log('jimmy',mouseHadBeenClicked)
             if (SELECTED) {
                 console.log('SELECTED', SELECTED);
                 mouse.x = x;
@@ -326,22 +329,10 @@ app.view.uiEvent.addEventListener(function (evt) {
                 } 
             }
             else if(mouseHadBeenClicked)
-            {
-                console.log('HELLO');
-                   
-                // chair.rotation.z = - 90 * ( Math.PI / 180 );
-
+            {      
                 handlePointerMove(x, y);
-               
-                    // chair.rotation.z = 180 * mouse.x
-                    // console.log(mouse.x)
-                
-                    // chair.rotation.x = 180 * mouse.y
-                    // handleSelection();
-                // } else {
                 handleSelection();
                 evt.forwardEvent();
-                // }
             }
             return;
             case "touchstart":
@@ -397,12 +388,13 @@ app.view.uiEvent.addEventListener(function (evt) {
                 }
                 if (event.type == "touchstart" || event.type == "pointerdown") {
                     if (!isCrosshair) {
-                        if (INTERSECTED)
-                        console.log('INTERSECTED: ', INTERSECTED);
-                            INTERSECTED.mesh.material.color.setHex(INTERSECTED.currentHex);
+                        if (INTERSECTED) {
+                        console.log('INTERSECTED: ', INTERSECTED.mesh);
+                        INTERSECTED.mesh.material.color.setHex(INTERSECTED.currentHex);
                         INTERSECTED = SELECTED;
                         INTERSECTED.currentHex = INTERSECTED.materials.color.getHex();
                         INTERSECTED.mesh.material.color.setHex(0xffff33);
+                        }
                     }
                 }
             }
