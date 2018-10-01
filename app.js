@@ -292,6 +292,7 @@ app.view.uiEvent.addEventListener(function (evt) {
         case "pointermove":
         case "mousemove":
             // if crosshair interaction, mousemove passed on
+            // mouseHadBeenClicked = true
             if (isCrosshair) {
                 evt.forwardEvent();
                 return;
@@ -344,6 +345,7 @@ app.view.uiEvent.addEventListener(function (evt) {
             }
             return;
             case "touchstart":
+            mouseHadBeenClicked = true
             if (window.PointerEvent) {
                 handleSelection();
                 evt.forwardEvent();
