@@ -100,6 +100,56 @@ sunMoonLights.sun.shadow.mapSize.height = 2048;
 // add some ambient so things aren't so harshly illuminated
 var ambientlight = new THREE.AmbientLight(0x404040); // soft white ambient light
 scene.add(ambientlight);
+
+var spotLight = new THREE.SpotLight( 0xffffff );
+spotLight.position.set( 100, 1000, 100 );
+
+spotLight.castShadow = true;
+
+spotLight.shadow.mapSize.width = 1024;
+spotLight.shadow.mapSize.height = 1024;
+
+spotLight.shadow.camera.near = 500;
+spotLight.shadow.camera.far = 4000;
+spotLight.shadow.camera.fov = 30;
+
+scene.add( spotLight );
+
+var spotLight = new THREE.SpotLight( 0xffffff );
+spotLight.position.set( 45, 2500, 45 );
+
+spotLight.castShadow = true;
+
+spotLight.shadow.mapSize.width = 1024;
+spotLight.shadow.mapSize.height = 1024;
+
+spotLight.shadow.camera.near = 500;
+spotLight.shadow.camera.far = 4000;
+spotLight.shadow.camera.fov = 30;
+
+scene.add( spotLight );
+
+var spotLight = new THREE.SpotLight( 0xffffff, 0.5 );
+spotLight.position.set( -100, -1000, -100 );
+
+spotLight.castShadow = true;
+
+spotLight.shadow.mapSize.width = 1024;
+spotLight.shadow.mapSize.height = 1024;
+
+spotLight.shadow.camera.near = 500;
+spotLight.shadow.camera.far = 4000;
+spotLight.shadow.camera.fov = 30;
+
+scene.add( spotLight );
+
+var light = new THREE.PointLight( 0xff0000, 1, 100 );
+light.position.set( 50, 50, 50 );
+scene.add( light );
+
+var light = new THREE.PointLight( 0xff0000, 1, 100 );
+light.position.set( -50, -50, -50 );
+scene.add( light );
 /////////////////////////
 // application variables.  This code started out as the three.js draggablecubes example
 var objects = [];
