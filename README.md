@@ -9,7 +9,7 @@ This repository renders a basic 3D model of a chair in AR, along with a product 
 The model can be translated and rotated freely.
 
 
-#Dependencies
+# dependencies
 
 Run npm install to install dependencies. 
 
