@@ -101,19 +101,19 @@ sunMoonLights.sun.shadow.mapSize.height = 2048;
 var ambientlight = new THREE.AmbientLight(0x404040); // soft white ambient light
 scene.add(ambientlight);
 
-var spotLight = new THREE.SpotLight( 0xffffff );
-spotLight.position.set( 100, 1000, 100 );
+// var spotLight = new THREE.SpotLight( 0xffffff );
+// spotLight.position.set( 100, 1000, 100 );
 
-spotLight.castShadow = true;
+// spotLight.castShadow = true;
 
-spotLight.shadow.mapSize.width = 1024;
-spotLight.shadow.mapSize.height = 1024;
+// spotLight.shadow.mapSize.width = 1024;
+// spotLight.shadow.mapSize.height = 1024;
 
-spotLight.shadow.camera.near = 500;
-spotLight.shadow.camera.far = 4000;
-spotLight.shadow.camera.fov = 30;
+// spotLight.shadow.camera.near = 500;
+// spotLight.shadow.camera.far = 4000;
+// spotLight.shadow.camera.fov = 30;
 
-scene.add( spotLight );
+// scene.add( spotLight );
 
 var spotLight = new THREE.SpotLight( 0xffffff );
 spotLight.position.set( 45, 2500, 45 );
@@ -237,10 +237,10 @@ loader.load(
         chair.position.z = -100;
         chair.rotation.x = 100;
         chair.rotation.y = 0;
-        chair.rotation.z = -45;
-        chair.scale.x = .5;
-        chair.scale.y = .5;
-        chair.scale.z = .5;
+        chair.rotation.z = 0;
+        chair.scale.x = .2;
+        chair.scale.y = .2;
+        chair.scale.z = .2;
         chair.castShadow = true;
         chair.receiveShadow = true;
         
