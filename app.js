@@ -238,9 +238,9 @@ loader.load(
         chair.rotation.x = 100;
         chair.rotation.y = 0;
         chair.rotation.z = 0;
-        chair.scale.x = .2;
-        chair.scale.y = .2;
-        chair.scale.z = .2;
+        chair.scale.x = .5;
+        chair.scale.y = .5;
+        chair.scale.z = .5;
         chair.castShadow = true;
         chair.receiveShadow = true;
         
