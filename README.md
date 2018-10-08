@@ -16,7 +16,8 @@ This repository renders a fully moveable basic 3D model of a chair in AR, along 
 
 ### Notes
 
-Currently runs properly only in the Argon browser. Working on rendering in Safari and Chrome.
+Designed to be used with the Argon browser.
+This code works best on a mobile browser; it does not access the webcam on a computer. Therefore, it renders a blank screen behind the 3D object which is replaced by the camera output when using Argon.
 
 ### Acknowledgements 
 
