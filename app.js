@@ -1,23 +1,18 @@
 /// <reference types="@argonjs/argon" />
 /// <reference types="three" />
 /// <reference types="stats" />
-// any time we use an INERTIAL frame in Cesium, it needs to know where to find it's
-// ASSET folder on the web.  The SunMoonLights computation uses INERTIAL frames, so
-// so we need to put the assets on the web and point Cesium at them
+
+// the line below defines INERTIAL frames for the SunMoonLights
 var CESIUM_BASE_URL = './cesium/';
-// grab some handles on APIs we use
 var Cesium = Argon.Cesium;
 var Cartesian3 = Argon.Cesium.Cartesian3;
 var ReferenceFrame = Argon.Cesium.ReferenceFrame;
 var JulianDate = Argon.Cesium.JulianDate;
 var CesiumMath = Argon.Cesium.CesiumMath;
-// set up Argon
 var app = Argon.init();
-// this app uses geoposed content, so subscribe to geolocation updates
+// enable geolocation updates
 app.context.subscribeGeolocation({ enableHighAccuracy: true });
-// install a secondary reality that the user can select from on the desktop
-app.reality.install(Argon.resolveURL('../streetview-reality/index.html'));
-// We use the standard WebGLRenderer when we only need WebGL-based content
+// creates a CSS 3D perspective element for HTML content
 var renderer = new THREE.WebGLRenderer({
     alpha: true,
     logarithmicDepthBuffer: true,
@@ -28,12 +23,9 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.sortObjects = false;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
-// to easily control stuff on the display
+//creates an absolutely positioned and sized HTML element as a container for the 2D content on the display. 
 var hud = new THREE.CSS3DArgonHUD();
-// We put some elements in the index.html, for convenience.
-// Here, we retrieve the description box and move it to the
-// the CSS3DArgonHUD hudElements[0].  We only put it in the left
-// hud since we'll be hiding it in stereo
+// retrieve elements from index.html and move to HUD
 var crosshair = document.getElementById('crosshair-wrapper');
 hud.appendChild(crosshair);
 var hudContainer = document.getElementById('hud');
@@ -45,9 +37,9 @@ app.view.setLayers([
     { source: renderer.domElement },
     { source: hud.domElement }
 ]);
-// add a performance stats thing to the display
-var stats = new Stats();
-hud.hudElements[0].appendChild(stats.dom);
+// uncomment performance stats to see FPS
+// var stats = new Stats();
+// hud.hudElements[0].appendChild(stats.dom);
 // Add button event listener.  Toggle better interaction style.
 var isCrosshair = true;
 var button = document.getElementById('controls');
@@ -62,12 +54,11 @@ button.addEventListener('click', function (event) {
         isCrosshair = true;
         crosshair.setAttribute('class', 'crosshair show-crosshair');
     }
-    // clear any highlight
     if (INTERSECTED)
         INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
     INTERSECTED = null;
 }, false);
-// set up the scene, a perspective camera and objects for the user's location and the boxes
+// set up scene, camera and objects for the user's location and the chair
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera();
 var user = new THREE.Object3D;
@@ -75,21 +66,15 @@ var boxScene = new THREE.Object3D;
 scene.add(camera);
 scene.add(user);
 scene.add(boxScene);
-
-// an entity for the collection of boxes, which are rooted to the world together
+// an entity for the collection of objects, which are rooted to the world together
 var boxSceneEntity = new Argon.Cesium.Entity({
     name: "box scene",
     position: Cartesian3.ZERO,
     orientation: Cesium.Quaternion.IDENTITY
 });
-// In this example, we are using the actual position of the sun and moon to create lights.
-// The SunMoonLights functions are created by ArgonSunMoon.js, and turn on the sun or moon
-// when they are above the horizon.  This package could be improved a lot (such as by
-// adjusting the color of light based on distance above horizon, taking the phase of the
-// moon into account, etc) but it provides a simple starting point.
+// create simple lighting based on the position of the sun and moon
 var sunMoonLights = new THREE.SunMoonLights();
-// the SunMoonLights.update routine will add/remove the sun/moon lights depending on if
-// the sun/moon are above the horizon
+
 scene.add(sunMoonLights.lights);
 // make the sun cast shadows
 sunMoonLights.sun.castShadow = true;
@@ -97,50 +82,28 @@ sunMoonLights.sun.shadow = new THREE.LightShadow(new THREE.PerspectiveCamera(50,
 sunMoonLights.sun.shadow.bias = -0.00022;
 sunMoonLights.sun.shadow.mapSize.width = 2048;
 sunMoonLights.sun.shadow.mapSize.height = 2048;
-// add some ambient so things aren't so harshly illuminated
-var ambientlight = new THREE.AmbientLight(0x404040); // soft white ambient light
+// add lighting to the object
+var ambientlight = new THREE.AmbientLight(0x404040);
 scene.add(ambientlight);
-
-// var spotLight = new THREE.SpotLight( 0xffffff );
-// spotLight.position.set( 100, 1000, 100 );
-
-// spotLight.castShadow = true;
-
-// spotLight.shadow.mapSize.width = 1024;
-// spotLight.shadow.mapSize.height = 1024;
-
-// spotLight.shadow.camera.near = 500;
-// spotLight.shadow.camera.far = 4000;
-// spotLight.shadow.camera.fov = 30;
-
-// scene.add( spotLight );
 
 var spotLight = new THREE.SpotLight( 0xffffff );
 spotLight.position.set( 45, 2500, 45 );
-
 spotLight.castShadow = true;
-
 spotLight.shadow.mapSize.width = 1024;
 spotLight.shadow.mapSize.height = 1024;
-
 spotLight.shadow.camera.near = 500;
 spotLight.shadow.camera.far = 4000;
 spotLight.shadow.camera.fov = 30;
-
 scene.add( spotLight );
 
 var spotLight = new THREE.SpotLight( 0xffffff, 0.5 );
 spotLight.position.set( -100, -1000, -100 );
-
 spotLight.castShadow = true;
-
 spotLight.shadow.mapSize.width = 1024;
 spotLight.shadow.mapSize.height = 1024;
-
 spotLight.shadow.camera.near = 500;
 spotLight.shadow.camera.far = 4000;
 spotLight.shadow.camera.fov = 30;
-
 scene.add( spotLight );
 
 var light = new THREE.PointLight( 0xff0000, 1, 100 );
@@ -150,8 +113,8 @@ scene.add( light );
 var light = new THREE.PointLight( 0xff0000, 1, 100 );
 light.position.set( -50, -50, -50 );
 scene.add( light );
-/////////////////////////
-// application variables.  This code started out as the three.js draggablecubes example
+
+// application variables.
 var objects = [];
 var plane = new THREE.Plane();
 var raycaster = new THREE.Raycaster();
@@ -159,33 +122,25 @@ var mouse = new THREE.Vector2();
 var offset = new THREE.Vector3();
 var intersection = new THREE.Vector3();
 var tempPos = new THREE.Vector3();
-var INTERSECTED, SELECTED, mouseHadBeenClicked = false;
-var touchID; // which touch caused the selection?
-// need to keep track of if we've located the box scene at all, and if it's locked to the world
+var INTERSECTED, SELECTED, userContact = false;
+var touchID; 
 var boxInit = false;
 var geoLocked = false;
-
 
 var loader = new THREE.GLTFLoader();
 
 var chair =  new THREE.Group();
 
 loader.load(
-	// resource URL
+	// load 3D object from the path below
 	'./vitra_eames_plastic_chair/scene.gltf',
-	// called when the resource is loaded
 	function ( importedObject ) {
-        // console.log('importentObject', importedObject);
         var group = [];
-        // var materials = [];
         importedObject.scene.traverse( function ( object ) {
             console.log('obj.mat', object, object.material);
             if ( object.material ) {
-               
                 if ( object.material  ) {
-
                     for ( var i = 0, il = object.material.length; i < il; i ++ ) {
-
                         var material = new THREE.MeshPhongMaterial();
                         THREE.Material.prototype.copy.call( material, object.material[ i ] );
                         material.color.copy( object.material[ i ].color );
@@ -195,11 +150,8 @@ loader.load(
                         material.morphTargets = object.material[ i ].morphTargets;
                         material.morphNormals = object.material[ i ].morphNormals;
                         object.material[ i ] = material;
-
                     }
-
                 } else {
-
                     var material = new THREE.MeshStandardMaterial({});
                     THREE.Material.prototype.copy.call( material, object.material );
                     material.color.copy( object.material.color );
@@ -210,37 +162,23 @@ loader.load(
                     material.morphNormals = object.material.morphNormals;
                     object.material = material;
                 }
-                // chair = object;
                 group.push( object );
-                // group.push( materials );
-
-
             }
-
         } );
 
         group.forEach((obj) => {
             chair.add(obj)
         })
-        // chair = importedObject.scene
-
-        // debugger
-
-        // importedObject.animations; // Array<THREE.AnimationClip>
-		// importedObject.scene; // THREE.Scene
-		// importedObject.scenes; // Array<THREE.Scene>
-		// importedObject.cameras; // Array<THREE.Camera>
-        // importedObject.asset; // Object
-        
+        //set the initial position of the chair
         chair.position.x = 0;
         chair.position.y = 0;
         chair.position.z = -100;
         chair.rotation.x = 100;
         chair.rotation.y = 0;
         chair.rotation.z = 0;
-        chair.scale.x = .5;
-        chair.scale.y = .5;
-        chair.scale.z = .5;
+        chair.scale.x = .2;
+        chair.scale.y = .2;
+        chair.scale.z = .2;
         chair.castShadow = true;
         chair.receiveShadow = true;
         
@@ -253,75 +191,17 @@ loader.load(
 	},
 	// called when loading has errors
 	function ( error ) {
-
 		console.log( 'An error happened', error );
-
 	}
 );
-
-
-
-
-// set up 50 cubes, each with its own entity
-// var geometry = new THREE.BoxGeometry(1, 1, 1);
-// for (var i = 0; i < 50; i++) {
-//     var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
-//     object.position.x = Math.random() * 50 - 25;
-//     object.position.y = Math.random() * 10 + 1;
-//     object.position.z = Math.random() * 50 - 25;
-//     object.rotation.x = Math.random() * 2 * Math.PI;
-//     object.rotation.y = Math.random() * 2 * Math.PI;
-//     object.rotation.z = Math.random() * 2 * Math.PI;
-//     object.scale.x = Math.random() * 3 + 1;
-//     object.scale.y = Math.random() * 3 + 1;
-//     object.scale.z = Math.random() * 3 + 1;
-//     object.castShadow = true;
-//     object.receiveShadow = true;
-//     boxScene.add(object);
-//     objects.push(object);
-// }
-document.addEventListener('keydown', onDocumentKeyStart, false);
-document.addEventListener('keyup', onDocumentKeyEnd, false);
-function onDocumentKeyStart(event) {
-    console.log("keyboard press");
-    if (event.defaultPrevented) {
-        return; // Should do nothing if the key event was already consumed.
-    }
-    if (event instanceof KeyboardEvent) {
-        if (!SELECTED && event.keyCode == " ".charCodeAt(0)) {
-            if (isCrosshair) {
-                mouse.x = mouse.y = 0;
-                if (handleSelection()) {
-                    event.preventDefault();
-                }
-            }
-        }
-    }
-}
-function onDocumentKeyEnd(event) {
-    console.log("keyboard release");
-    if (event.defaultPrevented) {
-        return; // Should do nothing if the key event was already consumed.
-    }
-    if (event instanceof KeyboardEvent) {
-        if (event.keyCode == " ".charCodeAt(0)) {
-            if (SELECTED && isCrosshair) {
-                if (handleRelease()) {
-                    event.preventDefault();
-                }
-            }
-        }
-    }
-}
+//The following code controls the behaviour of the object according to user input
 app.view.uiEvent.addEventListener(function (evt) {
     var event = evt.event;
     if (event.defaultPrevented) {
-        console.log("event was consumed");
-        console.log(event);
         evt.forwardEvent();
         return; // Should do nothing if the key event was already consumed.
     }
-    // handle mouse movement
+    // handles user input
     var ti, tx, ty;
     switch (event.type) {
         case "touchmove":
@@ -329,18 +209,15 @@ app.view.uiEvent.addEventListener(function (evt) {
                 evt.forwardEvent();
                 return; // ignore duplicate events
             }
-            console.log ("touch move: ");
-            console.log(event);
             event.preventDefault();
             for (ti = 0; ti < event.changedTouches.length; ti++) {
-                // console.log("changedTouches[" + i + "].identifier = " + e.changedTouches[i].identifier);
                 if (event.changedTouches[ti].identifier == touchID && !SELECTED) {
                     handlePointerMove(x, y);
                     handleSelection();
                 }
                 break;
             } 
-            // if we didn't find a move for the first touch, skip
+            // if didn't find a move for the first touch, skip
             if (ti == event.changedTouches.length) {
                 evt.forwardEvent();
                 return;
@@ -348,7 +225,6 @@ app.view.uiEvent.addEventListener(function (evt) {
         case "pointermove":
         case "mousemove":
             // if crosshair interaction, mousemove passed on
-            // mouseHadBeenClicked = true
             if (isCrosshair) {
                 evt.forwardEvent();
                 return;
@@ -363,25 +239,20 @@ app.view.uiEvent.addEventListener(function (evt) {
             }
             var x = (tx / window.innerWidth) * 2 - 1;
             var y = -(ty / window.innerHeight) * 2 + 1;
-            // console.log('jimmy',mouseHadBeenClicked)
             if (SELECTED) {
-                console.log('SELECTED', SELECTED);
                 mouse.x = x;
                 mouse.y = y;
                 raycaster.setFromCamera(mouse, camera);
                 // recompute the plane each time, in case the camera moved
                 var worldLoc = user.localToWorld(tempPos.copy(SELECTED.position));
-                plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(plane.normal), 
-                //user.getWorldDirection( new THREE.Vector3(0,0,1) ),
-                worldLoc);
+                plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(plane.normal), worldLoc);
                 if (raycaster.ray.intersectPlane(plane, intersection)) {
-                    // planes, rays and intersections are in the local "world" 3D coordinates
+                    // planes, rays and intersections are in the local world 3D coordinates
                     var ptInWorld = user.worldToLocal(intersection).sub(offset);
                     SELECTED.position.copy(ptInWorld);
-                    // SELECTED.entity.position.setValue(SELECTED.position, app.context.user);
                 } 
             }
-            else if(mouseHadBeenClicked)
+            else if(userContact)
             {      
                 handlePointerMove(x, y);
                 handleSelection();
@@ -389,39 +260,31 @@ app.view.uiEvent.addEventListener(function (evt) {
             }
             return;
             case "touchstart":
-            mouseHadBeenClicked = true
+            userContact = true
             if (window.PointerEvent) {
                 handleSelection();
                 evt.forwardEvent();
                 return; // ignore duplicate events
             }
-            console.log("touch start: ");
-            console.log(event);
-            
             event.preventDefault();
-            // try the first new touch ... seems unlikely there will be TWO new touches
-            // at exactly the same time
             ti = 0;
         case 'pointerdown':
         case 'mousedown':
             // ignore additional touches or pointer down events after the first selection
-            mouseHadBeenClicked = true
+            userContact = true
             if (SELECTED) {
-                // perhaps multitouch devices can do a second pointer down ... need
-                // to keep track of which pointer event, I suppose!
+                // incase of two touches from multitouch device
                 evt.forwardEvent();
                 return;
             }
             if (isCrosshair) {
                 if (event.type == "mousedown") {
-                    // ignore mouse down events for selection in crosshair mode, they must
-                    // use the keyboard
-                    console.log("mousedown ignored");
+                    // ignore mouse down events for selection in crosshair mode
                     evt.forwardEvent();
                     return;
                 }
                 mouse.x = mouse.y = 0;
-            }
+            } 
             else {
                 if (event.type == "touchstart") {
                     tx = event.changedTouches[ti].clientX;
@@ -434,7 +297,6 @@ app.view.uiEvent.addEventListener(function (evt) {
                 mouse.x = (tx / window.innerWidth) * 2 - 1;
                 mouse.y = -(ty / window.innerHeight) * 2 + 1;
             }
-            console.log("mousedown");
             if (handleSelection()) {
                 if (event.type == "touchstart") {
                     touchID = event.changedTouches[ti].identifier;
@@ -442,7 +304,6 @@ app.view.uiEvent.addEventListener(function (evt) {
                 if (event.type == "touchstart" || event.type == "pointerdown") {
                     if (!isCrosshair) {
                         if (INTERSECTED) {
-                        console.log('INTERSECTED: ', INTERSECTED.mesh);
                         INTERSECTED.mesh.material.color.setHex(INTERSECTED.currentHex);
                         INTERSECTED = SELECTED;
                         INTERSECTED.currentHex = INTERSECTED.materials.color.getHex();
@@ -460,30 +321,24 @@ app.view.uiEvent.addEventListener(function (evt) {
                 evt.forwardEvent();
                 return; // ignore duplicate events
             }
-            console.log("touch end: ");
-            console.log(event);
             event.preventDefault();
             for (ti = 0; ti < event.changedTouches.length; ti++) {
-                //console.log("changedTouches[" + i + "].identifier = " + e.changedTouches[i].identifier);
                 if (event.changedTouches[ti].identifier == touchID)
                     break;
             }
-            // if we didn't find a move for the first touch, skip
+            // if no move for the first touch, skip
             if (ti == event.changedTouches.length) {
                 evt.forwardEvent();
                 return;
             }
         case 'pointerup':
         case 'mouseup':
-            mouseHadBeenClicked = false
+            userContact = false
             if (isCrosshair && event.type == "mouseup") {
-                // ignore mouse up events for selection in crosshair mode, they must
-                // use the keyboard
-                console.log("release ignored");
+                // ignore mouse up events for selection in crosshair mode
                 evt.forwardEvent();
                 return;
             }
-            console.log("release");
             if (SELECTED) {
                 if (handleRelease()) {
                     if ((event.type == "touchend" || event.type == "pointerup") && !isCrosshair) {
@@ -500,66 +355,27 @@ app.view.uiEvent.addEventListener(function (evt) {
         default:
             evt.forwardEvent();
     }
-    //console.log(event);
 });
+// handles chair translation
 function handleRelease() {
-    var date = app.context.getTime();
     THREE.SceneUtils.detach(SELECTED, user, scene);
     THREE.SceneUtils.attach(SELECTED, scene, boxScene);
     SELECTED = null;
     touchID = null;
-    // var boxPose = app.context.getEntityPose(SELECTED.entity);
-    // console.log("------");
-    // console.log("touch released, pos=" + boxPose.position);
-    // console.log("touch released, quat=" + boxPose.orientation);
-    // console.log("touch released _value pos=" + SELECTED.entity.position._value)
-    // console.log("touch released _value quat=" + SELECTED.entity.orientation._value)
-    // console.log("------");
-    // var boxPose = app.context.getEntityPose(SELECTED.entity, boxSceneEntity);
-    // SELECTED.position.copy(boxPose.position);
-    // SELECTED.quaternion.copy(boxPose.orientation);
-    // user.remove(SELECTED);
-    // boxScene.add(SELECTED);
     return true;
 }
-let quarterturn = 1;
-var ti, tx, ty;
+// handle chair rotation
 function handleSelection() {
     scene.updateMatrixWorld(true);
     raycaster.setFromCamera(mouse, camera);
-    
     chair.rotation.z = 180 * mouse.x
-    // console.log(mouse.x)
-
     chair.rotation.x = 180 * mouse.y
-    // }
-
-    console.log("touch!");
- 
     var intersects = raycaster.intersectObjects(objects, true);
-    
     if (intersects.length > 0) {
-        console.log("touch intersect!");
         var object = chair;
-        var date = app.context.getTime();
-        var defaultFrame = app.context.getDefaultReferenceFrame();
-        console.log("------");
-        console.log("touch FIXED pos=" + JSON.stringify(object.position));
-        console.log("touch FIXED quat=" + JSON.stringify(object.quaternion));
         THREE.SceneUtils.detach(object, boxScene, scene);
         THREE.SceneUtils.attach(object, scene, user);
-        // var newpose = app.context.getEntityPose(object.entity);
-        // console.log("touch DEVICE pos=" + newpose.position);
-        // console.log("touch DEVICE quat=" + newpose.orientation)
-        // console.log("touch DEVICE _value pos=" + object.entity.position._value);
-        // console.log("touch DEVICE _value quat=" + object.entity.orientation._value)
-        // console.log("------");
         SELECTED = object;
-        // console.log("touch DEVICE pos=" + boxPose.position);
-        // console.log("touch DEVICE quat=" + boxPose.orientation)
-        // console.log("touch DEVICE _value pos=" + (object.entity.position as any)._value);
-        // console.log("touch DEVICE _value quat=" + (object.entity.orientation as any)._value)
-        // console.log("------");
         if (!isCrosshair) {
             var worldLoc = user.localToWorld(tempPos.copy(SELECTED.position));
             plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(plane.normal), worldLoc);
@@ -572,11 +388,11 @@ function handleSelection() {
     }
     return false;
 }
+
 function handlePointerMove(x, y) {
     if (SELECTED) {
         return;
     }
-    // console.log('HANDLE POINTER MOVE');
     mouse.x = x;
     mouse.y = y;
     scene.updateMatrixWorld(true);
@@ -584,7 +400,6 @@ function handlePointerMove(x, y) {
     var intersects = raycaster.intersectObjects(objects, true);
     if (intersects.length > 0) {
         if (INTERSECTED != intersects[0].object) {
-            
             if (INTERSECTED)
                 INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
             INTERSECTED = intersects[0].object;
@@ -598,28 +413,18 @@ function handlePointerMove(x, y) {
         INTERSECTED = null;
     }
 }
-// since these don't move, we only update them when the origin changes
+// update boxScene position when the origin changes
 app.context.originChangeEvent.addEventListener(function () {
     if (boxInit) {
-        console.log("**** new frame of reference");
         var boxPose = app.context.getEntityPose(boxSceneEntity);
         boxScene.position.copy(boxPose.position);
         boxScene.quaternion.copy(boxPose.orientation);
     }
 });
-// check if the reality has a geopose
-app.reality.changeEvent.addEventListener(function (data) {
-    console.log("Reality changed from '" + data.previous + "' to '" + data.current);
-});
-// the updateEvent is called each time the 3D world should be
-// rendered, before the renderEvent.  The state of your application
-// should be updated here.
+// the updateEvent is called each time the 3D world is rendered, before the renderEvent. update state here.
 app.updateEvent.addEventListener(function (frame) {
-    // get the position and orientation (the "pose") of the user
-    // in the local coordinate frame.
+    // get pose of user and set the THREE user object to match it
     var userPose = app.context.getEntityPose(app.context.user);
-    // assuming we know the user's pose, set the pose of our
-    // THREE user object to match it
     if (userPose.poseStatus & Argon.PoseStatus.KNOWN) {
         user.position.copy(userPose.position);
         user.quaternion.copy(userPose.orientation);
@@ -630,55 +435,32 @@ app.updateEvent.addEventListener(function (frame) {
     // get sun and moon positions, add/remove lights as necessary
     var defaultFrame = app.context.getDefaultReferenceFrame();
     sunMoonLights.update(frame.time, defaultFrame);
-    // the first time through, we create a geospatial position for
-    // the box scene somewhere near us.  If we don't have geospatial tracking,
-    // we end up positioning the box scene around our starting point
+    // create geospatial position to render boxScene
     if (!boxInit) {
-        // set the pose of it's entity to the user pose in our local frame of refererence
         boxSceneEntity.position.setValue(userPose.position, defaultFrame);
         boxSceneEntity.orientation.setValue(userPose.orientation);
         boxInit = true;
         geoLocked = false;
-        // we'll start by moving the boxes to the stage coordinates, which we should have and should
-        // be a good local coordinate system for any device
-        if (!Argon.convertEntityReferenceFrame(boxSceneEntity, frame.time, app.context.stage)) {
-            console.log("UNEXPECTED:  can't convert boxScene to STAGE coordinates.");
-        }
     }
-    // if we were using geo coordinates, but can't any longer, recenter the scene on the user
+    // if geo coordinates are lost, recenter the scene on the user
     if (geoLocked) {
-        // are the user and FIXED frames connected?
         var userPoseFIXED = app.context.getEntityPose(app.context.user, ReferenceFrame.FIXED);
         if (!(userPoseFIXED.poseStatus & Argon.PoseStatus.KNOWN)) {
-            // we'll start by moving the boxes to the stage coordinates, which we should have and should
-            // be a good local coordinate system for any device
             boxSceneEntity.position.setValue(userPose.position, defaultFrame);
             boxSceneEntity.orientation.setValue(userPose.orientation);
             geoLocked = false;
-            if (Argon.convertEntityReferenceFrame(boxSceneEntity, frame.time, app.context.stage)) {
-                console.log("No longer have geospatial coordinates, moved boxes back to stage");
-            }
-            else {
-                console.log("No longer have geospatial coordinates, but FAILED to move boxes back to stage");
-            }
         }
     }
     else {
-        // can the current box scene reach the FIXED frame?
+        // else convert to world coordinates
         var boxPoseFIXED = app.context.getEntityPose(boxSceneEntity, ReferenceFrame.FIXED);
         if (boxPoseFIXED.poseStatus & Argon.PoseStatus.KNOWN) {
-            // now convert the entity from our local reference frame to world coordinates if we can
             if (Argon.convertEntityReferenceFrame(boxSceneEntity, frame.time, ReferenceFrame.FIXED)) {
                 geoLocked = true;
-                console.log("Successfully positioned the boxes in the world");
-                // yay!  We're going to continue, either way, since we need it positioned somewhere!
             }
         }
     }
-    // In 6DOF realities, scale down the boxes
-    boxScene.scale.setScalar(app.context.userTracking === '6DOF' ? 0.1 : 1);
-    // get the pose of the boxscene in local coordinates, only need to do this when we
-    // set it or when the origin changes (see above)
+    // get the pose of the boxscene in local coordinates
     var boxPose = app.context.getEntityPose(boxSceneEntity);
     boxScene.position.copy(boxPose.position);
     boxScene.quaternion.copy(boxPose.orientation);
@@ -686,9 +468,8 @@ app.updateEvent.addEventListener(function (frame) {
         handlePointerMove(0, 0);
     }
 });
-// renderEvent is fired whenever argon wants the app to update its display
+// renderEvent is fired when display is updated
 app.renderEvent.addEventListener(function (frame) {
-    // if we have 1 subView, we're in mono mode.  If more, stereo.
     var monoMode = (app.view.subviews).length == 1;
     if (!monoMode) {
         button.style.display = 'none';
@@ -696,37 +477,25 @@ app.renderEvent.addEventListener(function (frame) {
     else {
         button.style.display = 'inline-block';
     }
-    // set the renderer to know the current size of the viewport.
-    // This is the full size of the viewport, which would include
-    // both views if we are in stereo viewing mode
+    //following code handles different view modes
     var view = app.view;
     renderer.setSize(view.renderWidth, view.renderHeight, false);
     renderer.setPixelRatio(app.suggestedPixelRatio);
     var viewport = view.viewport;
     hud.setSize(viewport.width, viewport.height);
-    // there is 1 subview in monocular mode, 2 in stereo mode
     for (var _i = 0, _a = app.view.subviews; _i < _a.length; _i++) {
         var subview = _a[_i];
-        // set the position and orientation of the camera for
-        // this subview
         camera.position.copy(subview.pose.position);
         camera.quaternion.copy(subview.pose.orientation);
-        // the underlying system provide a full projection matrix
-        // for the camera.
         camera.projectionMatrix.fromArray(subview.frustum.projectionMatrix);
-        // set the viewport for this view
         var _b = subview.renderViewport, x = _b.x, y = _b.y, width = _b.width, height = _b.height;
         renderer.setViewport(x, y, width, height);
-        // set the webGL rendering parameters and render this view
         renderer.setScissor(x, y, width, height);
         renderer.setScissorTest(true);
         renderer.render(scene, camera);
-        // adjust the hud, but only in mono
-        //      if (monoMode) {
         var _c = subview.viewport, x = _c.x, y = _c.y, width = _c.width, height = _c.height;
         hud.setViewport(x, y, width, height, subview.index);
         hud.render(subview.index);
-        //    }
     }
     stats.update();
 });
