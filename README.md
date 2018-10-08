@@ -2,7 +2,7 @@
 
 Part of Lighthouse Labs MTL final project submission.
 
-Designed to complement the vyo͞o e-commerce site - https://github.com/lleki/LHLFINAL
+Designed to complement the vyo͞o e-commerce site - https://github.com/hannahjn/vyoo
 
 This repository renders a fully moveable basic 3D model of a chair in AR, along with a product description.
 
@@ -20,4 +20,4 @@ Currently runs properly only in the Argon browser. Working on rendering in Safar
 
 ### Acknowledgements 
 
-Source code from Argon.js Samples (https://github.com/hannahjn/LHLFINAL)
+Source code from Argon.js Samples (https://github.com/argonjs/samples)
