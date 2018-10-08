@@ -1,64 +1,39 @@
----
----
 <html>
   <head>
-    <title>Draggagle Cubes WebGL</title>
+    <title>Vyoo AR</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
   	<meta name="keywords" content="{{ site.keywords }}">
-    <!-- Origin Trial Token, feature = WebVR, origin = https://argonjs.io, expires = 2017-06-06 -->
     <meta http-equiv="origin-trial" data-feature="WebVR" data-expires="2017-06-06" content="ArfXzMSluPfAfoVDD+ne9oWykUyDeLFD/z4/0uRCdZ1491aSrytWyj7gnGhwK1/Tzg/D+UOvNgD2+L9PWqF5XwwAAABceyJvcmlnaW4iOiJodHRwczovL2FyZ29uanMuaW86NDQzIiwiZmVhdHVyZSI6IldlYlZSIiwiZXhwaXJ5IjoxNDk2NzcxODA0LCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@argonjs/argon@1.4.0/dist/argon.min.js"></script> -->
     <script src="https://threejs.org/build/three.js"></script>
     <script src="./orbitcontrol.js"></script>
-
-    <script>
-/**
- * @author alteredq / http://alteredqualia.com/
- */
-
-THREE.SceneUtils = {
-
-createMultiMaterialObject: function ( geometry, materials ) {
-
-  var group = new THREE.Group();
-
-  for ( var i = 0, l = materials.length; i < l; i ++ ) {
-
-    group.add( new THREE.Mesh( geometry, materials[ i ] ) );
-
-  }
-
-  return group;
-
-},
-
-detach: function ( child, parent, scene ) {
-
-  child.applyMatrix( parent.matrixWorld );
-  parent.remove( child );
-  scene.add( child );
-
-},
-
-attach: function ( child, scene, parent ) {
-
-  child.applyMatrix( new THREE.Matrix4().getInverse( parent.matrixWorld ) );
-
-  scene.remove( child );
-  parent.add( child );
-
-}
-
-};
-    </script>
     <script src="./vitra_eames_plastic_chair/gltf_loader.js"></script>
-
     <script src="https://unpkg.com/@argonjs/argon@1.4.0/dist/argon.js"></script>
     <script src="./lib/CSS3DArgonHUD.js"></script>
     <script src="./lib/ArgonSunMoon.js"></script>
-   
     <script src="./lib/stats.min.js"></script>
-  	<link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script>
+      // helper to handle chair translation
+      THREE.SceneUtils = {
+        createMultiMaterialObject: function ( geometry, materials ) {
+          var group = new THREE.Group();
+          for ( var i = 0, l = materials.length; i < l; i ++ ) {
+            group.add( new THREE.Mesh( geometry, materials[ i ] ) );
+          }
+          return group;
+        },
+        detach: function ( child, parent, scene ) {
+          child.applyMatrix( parent.matrixWorld );
+          parent.remove( child );
+          scene.add( child );
+        },
+        attach: function ( child, scene, parent ) {
+          child.applyMatrix( new THREE.Matrix4().getInverse( parent.matrixWorld ) );
+          scene.remove( child );
+          parent.add( child );
+        }
+      };
+    </script>
 </head>
   <body>
     <div id="crosshair-wrapper">
@@ -73,7 +48,7 @@ attach: function ( child, scene, parent ) {
       <div onclick="hideMe(this)" id="description">
         <h2>The Eames Chair</h2>
         <h5>(click to dismiss)</h5>
-        <p>'Charles and Ray Eames realized their first successful, single-shell form in 1950 with the Molded Fiberglass Chairs. However, when the environmental risks associated with fiberglass production became more widely understood, the decision was made to discontinue fiberglass shell production until a more suitable material could be found. In 2001, Herman Miller reintroduced the Molded Plastic Chair in polypropylene. In addition to being 100 percent recyclable, the polypropylene shell chair’s subtle matte texture offers a soft tactility as well as notable durability.'</p>
+        <p> Designed by Charles and Ray Eames in 1950, this chair was reintroduced in 2001, and makes a valuable addition to any home.</p>
       </div>
     </div>
   </body>
@@ -83,5 +58,4 @@ attach: function ( child, scene, parent ) {
 		}	
 	</script>
   <script src="app.js"></script>
- 
 </html>
